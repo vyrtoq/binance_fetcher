@@ -12,7 +12,8 @@
                 "args": [
                     "build",
                     "--bin=binance_fetcher",
-                    "--package=binance_fetcher"
+                    "--package=binance_fetcher",
+                    "--features=full"
                 ],
                 "filter": {
                     "name": "binance_fetcher",

@@ -1,4 +1,5 @@
 mod settings;
+mod candle;
 use env_logger::Builder;
 use log;
 use tokio; // Add missing import for tokio crate
@@ -8,6 +9,8 @@ use binance_spot_connector_rust::{
 };
 use redis::{Client, Commands};
 use settings::Settings;
+use candle::Candle;
+use serde_json;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -31,15 +34,22 @@ async fn main() -> Result<(), Error> {
         .expect("Failed to read response body");
     log::info!("Data was fetched correctly from the API");
 
+
+    // Convert the data into a Vec<Candle>
+    let candles: Vec<Candle> = serde_json::from_str(&data).expect("Failed to parse data");
+
     // Connect to Redis, using .clone() because Redis does not support opening a connection on a &String
-    // .clone() creates a new String (instead of &String) object with the same value as the original
+    // .clone creates a new String (instead of &String) object with the same value as the original
     let redis_client = Client::open(settings.redis_connection_string.clone()).expect("Failed to connect to Redis");
     let mut redis_con = redis_client.get_connection().expect("Failed to connect to Redis server");
     
-    // Store the data into Redis with "BTCUSDT" as the key
-    match redis_con.set::<_, _, ()>("BTCUSDT", &data) {
-        Ok(_) => log::info!("Data stored successfully"),
-        Err(e) => log::error!("Failed to store data: {}", e),
+    // Store the candles in Redis with the open_time as key
+    for candle in candles {
+        let candle_json = serde_json::to_string(&candle).expect("Failed to serialize candle");
+        // set expects 3 parameters: key, value, and return value. 
+        // key is u64, value (candle_json) is String, return value is ()
+        redis_con.set::<u64, String, ()>(candle.open_time, candle_json).expect("Failed to store candle in Redis");
     }
+
     Ok(())
 }

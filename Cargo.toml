@@ -16,14 +16,14 @@ binance_spot_connector_rust = { git = "https://github.com/binance/binance-spot-c
 # enable-hyper
 hyper = { version = "1.1.0", features = ["full"], optional = true }
 serde = { version = "1.0.195", features = ["derive"] }
-serde_json = { version = "1.0.111", optional = true }
+serde_json = { version = "1.0", optional = true }
 hyper-tls = {version = "0.6.0", optional = true }
 futures-util = {version = "0.3.21", optional = true }
 redis = "0.24.0"
 config = "0.13.4"
 
 [features]
-full = ["enable-hyper", "enable-tungstenite", "enable-ureq", "enable-tokio-tungstenite"]
+full = ["enable-hyper", "enable-tungstenite", "enable-ureq", "enable-tokio-tungstenite", "serde_json"]
 enable-hyper = ["hyper", "hyper-tls", "serde_json", "futures-util"]
 enable-tungstenite = ["tungstenite", "tokio-tungstenite"]
 enable-ureq = ["ureq"]
