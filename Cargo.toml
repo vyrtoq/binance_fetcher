@@ -26,3 +26,7 @@ enable-hyper = ["hyper", "hyper-tls", "serde_json", "futures-util"]
 enable-tungstenite = ["tungstenite", "tokio-tungstenite"]
 enable-ureq = ["ureq"]
 enable-tokio-tungstenite = ["tokio-tungstenite"]
+
+[[bin]]
+name = "binance_fetcher"
+path = "src/main.rs"
