@@ -49,6 +49,7 @@ async fn main() -> Result<(), Error> {
         // set expects 3 parameters: key, value, and return value. 
         // key is u64, value (candle_json) is String, return value is ()
         redis_con.set::<u64, String, ()>(candle.open_time, candle_json).expect("Failed to store candle in Redis");
+        // log::info!("Candle stored in Redis: {:?}", candle);
     }
 
     Ok(())
