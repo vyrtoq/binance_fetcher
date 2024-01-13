@@ -13,7 +13,7 @@ async fn main() -> Result<(), Error> {
         .filter(None, log::LevelFilter::Info)
         .init();
     
-    let client = BinanceHttpClient::default();
+    let client = BinanceHttpClient::default(); // without credentials because of bad header bug
 
     // Get candlesticks for BTCUSDT with a 1 minute interval
     let data = client.send(market::klines("BTCUSDT", KlineInterval::Minutes1)).await
