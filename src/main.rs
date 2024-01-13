@@ -1,12 +1,10 @@
-use std::{fs, io};
+
 use env_logger::Builder;
 use log;
 use tokio; // Add missing import for tokio crate
 use binance_spot_connector_rust::{
-    http::Credentials,
     hyper::{BinanceHttpClient, Error},
-    market::{self, klines::KlineInterval},
-    trade
+    market::{self, klines::KlineInterval}
 };
 
 #[tokio::main]
