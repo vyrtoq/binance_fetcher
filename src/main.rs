@@ -21,5 +21,10 @@ async fn main() -> Result<(), Error> {
         .expect("Failed to read response body");
     log::info!("{}", data);
 
+    let db = DB::open_default("rocks.db")?;
+
+    // Store the data into the database with "BTCUSDT" as the key
+    db.put("BTCUSDT", data)?;
+    
     Ok(())
 }
