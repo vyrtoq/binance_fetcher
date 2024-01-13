@@ -5,6 +5,7 @@ use binance_spot_connector_rust::{
     hyper::{BinanceHttpClient, Error},
     market::{self, klines::KlineInterval}
 };
+use redis::{Client, Commands};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -19,12 +20,15 @@ async fn main() -> Result<(), Error> {
         .expect("Request failed")
         .into_body_str().await
         .expect("Failed to read response body");
-    log::info!("{}", data);
+    log::info!("Data was fetched correctly from the API");
 
-    let db = DB::open_default("rocks.db")?;
-
-    // Store the data into the database with "BTCUSDT" as the key
-    db.put("BTCUSDT", data)?;
+    let redis_client = Client::open("redis://127.0.0.1:6379").expect("Failed to connect to Redis"); // Connect to Redis server on localhost at port 6379
+    let mut redis_con = redis_client.get_connection().expect("Failed to connect to Redis server");
     
+    // Store the data into Redis with "BTCUSDT" as the key
+    match redis_con.set::<_, _, ()>("BTCUSDT", &data) {
+        Ok(_) => log::info!("Data stored successfully"),
+        Err(e) => log::error!("Failed to store data: {}", e),
+    }
     Ok(())
 }
