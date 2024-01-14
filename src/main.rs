@@ -29,10 +29,10 @@ async fn main() -> Result<(), Error> {
         .unwrap();
 
     let settings: Settings = config.try_deserialize().unwrap();    
-    let client = BinanceHttpClient::default(); // without credentials because of bad header bug
+    let client = BinanceHttpClient::default();
     
-    // Get candlesticks for BTCUSDT with a 1 minute interval
-    let data = client.send(market::klines("BTCUSDT", KlineInterval::Minutes1)).await
+    // Get candlesticks for settings.ticker with a 1 minute interval
+    let data = client.send(market::klines(&settings.ticker, KlineInterval::Minutes1)).await
         .expect("Request failed")
         .into_body_str().await
         .expect("Failed to read response body");
