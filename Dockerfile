@@ -3,22 +3,22 @@ FROM rust:alpine as builder
 
 RUN apk add --no-cache build-base musl-dev openssl-dev openssl git
 
+# Set the OpenSSL env vars for linker
+ENV OPENSSL_LIB_DIR=/usr/lib
+ENV OPENSSL_INCLUDE_DIR=/usr/include
+
 # Set the working directory in the Docker image
 WORKDIR /app
 
 # Copy over your manifest
 COPY Cargo.toml Cargo.lock ./
-
-# This build step will cache your dependencies
-RUN cargo build --release
-RUN rm src/*.rs
+COPY Settings.toml  Settings.toml ./
 
 # Copy your source tree
 COPY ./src ./src
 
 # Build for release.
-RUN rm ./target/release/deps/app*
-RUN cargo build --release
+RUN cargo build --release --bin=binance_fetcher --package=binance_fetcher --features=full --target=x86_64-unknown-linux-musl
 
 # Our second stage, that will be the final image
 FROM alpine:latest
@@ -28,7 +28,7 @@ FROM alpine:latest
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cargo/bin
 
 # Copy the build artifact from the builder stage.
-COPY --from=builder /usr/src/app/target/release/app /usr/local/bin
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/binance_fetcher /usr/local/bin
 
 # Run the binary.
-CMD ["app"]
+CMD ["binance_fetcher"]
